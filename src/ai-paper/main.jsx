@@ -257,7 +257,7 @@ function App(){
     <label>Risk per position (%)<input type="number" min=".1" max="5" step=".1" value={book.settings.riskPct} onChange={e=>setSafe(s=>({...s,settings:{...s.settings,riskPct:e.target.value}}))}/></label>
     </div>
     <p className="support">Virtual risk committed: ₹{fmt(riskCommitted(book.positions))}. Per-position risk and a portfolio risk ceiling apply. A separate Claude setup can enter while another position is open.</p>
-    <div className="toolbar"><button className="accent" disabled={busy||readOnly||!isLive||!sessionActive||authChecking} onClick={()=>void analyse()>{busy?'Analysing…':'Run Claude analysis'}</button><button disabled={!broker?.authenticated||!sessionActive||authChecking} className={book.auto?'danger':'secondary'} onClick={()=>setSafe(s=>({...s,auto:!s.auto}))}>{book.auto?'Pause auto research':'Enable auto research'}</button></div>
+    <div className="toolbar"><button className="accent" disabled={busy||readOnly||!isLive||!sessionActive||authChecking} onClick={()=>void analyse()}>{busy?'Analysing…':'Run Claude analysis'}</button><button disabled={!broker?.authenticated||!sessionActive||authChecking} className={book.auto?'danger':'secondary'} onClick={()=>setSafe(s=>({...s,auto:!s.auto}))}>{book.auto?'Pause auto research':'Enable auto research'}</button></div>
     <p className="notice">{status||'Market-data and Claude secrets must be configured before analysis. Auto research runs every minute only while this browser tab is open.'}</p>
    </section>
    <section className="card intelligence">
