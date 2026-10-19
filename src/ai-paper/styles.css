@@ -146,3 +146,100 @@ html { scroll-behavior: smooth; scroll-padding-top: 160px; }
   .top-v3 .header-nav a { font-size: 9px; padding-left: 6px; padding-right: 6px; }
   .top-v3 .header-signout { padding: 5px 6px; font-size: 9px; }
 }
+
+
+/* Mentor AI 2.0 — hamburger navigation and focused workspace screens */
+.top-v3 .header-sub { gap: 12px; }
+.top-v3 .header-nav { flex: 1; }
+.top-v3 .header-nav button {
+  display: inline-flex; align-items: center; flex-shrink: 0;
+  background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 0;
+  padding: 11px 14px 12px; color: #95a9c2;
+  font-size: 12px; font-weight: 760; white-space: nowrap;
+}
+.top-v3 .header-nav button:hover,.top-v3 .header-nav button.selected {
+  color: #d8ffc1; border-bottom-color: #ade986;
+}
+.top-v3 .hamburger-trigger {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  min-height: 36px; padding: 8px 12px; margin-left: 4px;
+  border: 1px solid #5a8250; border-radius: 9px;
+  background: #1e3426; color: #dafcbf; font-size: 12px;
+  font-weight: 850; letter-spacing: .02em; flex-shrink: 0;
+}
+.top-v3 .hamburger-trigger:hover,.top-v3 .hamburger-trigger[aria-expanded="true"] {
+  background: #2b4730; border-color: #a6d889;
+}
+.hamburger-lines { width: 16px; height: 14px; display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; }
+.hamburger-lines i { height: 2px; width: 100%; border-radius: 2px; display: block; background: currentColor; }
+.hamburger-lines i:nth-child(2) { width: 72%; }
+.menu-backdrop {
+  position: fixed; z-index: 100; inset: 0; padding: 0; border: 0; border-radius: 0;
+  background: rgba(3,8,15,.78); cursor: pointer;
+  backdrop-filter: blur(3px);
+}
+.menu-drawer {
+  position: fixed; z-index: 101; top: 0; bottom: 0; right: 0;
+  width: min(420px, 94vw); max-width: 100%;
+  display: flex; flex-direction: column;
+  background: #101927; border-left: 1px solid #344657;
+  box-shadow: -22px 0 56px rgba(0,0,0,.45);
+  animation: drawer-appear .2s ease-out;
+}
+@keyframes drawer-appear { from { transform: translateX(30px); opacity: .65; } to { transform: translateX(0); opacity: 1; } }
+.menu-drawer-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 29px 25px 23px; border-bottom: 1px solid #2b3a4e;
+}
+.menu-drawer-head span { display: block; color: #b3e98d; font-weight: 850; font-size: 10px; letter-spacing: .16em; margin-bottom: 7px; }
+.menu-drawer-head strong { display: block; font-size: 22px; color: #f1f7ff; letter-spacing: -.025em; }
+.menu-close { border-radius: 10px; font-size: 17px; color: #cfe0f0; background: #1b2a3a; border: 1px solid #3d4f60; width: 38px; height: 38px; padding: 0; }
+.menu-drawer-items { padding: 16px 14px; overflow-y: auto; flex: 1; }
+.menu-link { display: flex; align-items: center; gap: 14px; width: 100%; margin: 4px 0; border: 1px solid transparent; border-radius: 13px; background: transparent; color: #dce8f5; text-align: left; padding: 15px 13px; font-size: 13px; }
+.menu-link:hover,.menu-link.active { background: #1f3429; border-color: #45634b; }
+.menu-link .menu-icon { display: grid; place-items: center; width: 40px; height: 40px; min-width: 40px; font-size: 19px; font-weight: 800; color: #ccf2ad; border-radius: 10px; background: #22362d; border: 1px solid #354a3c; }
+.menu-link > span:nth-child(2) { flex: 1; min-width: 0; }
+.menu-link strong { display: block; font-size: 14px; letter-spacing: -.01em; line-height: 1.35; }
+.menu-link small { display: block; margin-top: 5px; font-size: 11px; color: #9eafc1; font-weight: 450; line-height: 1.45; }
+.menu-link .menu-arrow { color: #9dafbf; font-size: 24px; }
+.menu-drawer-foot { padding: 19px 22px calc(20px + env(safe-area-inset-bottom,0px)); font-size: 11px; color: #a3b5c5; border-top: 1px solid #293747; display: flex; align-items: center; gap: 8px; }
+.menu-foot-dot { width: 7px; height: 7px; background: #b6ed8d; border-radius: 50%; }
+.workspace-view { min-height: 420px; }
+.workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 13px 0 25px; }
+.workspace-heading .workspace-eyebrow { display: block; font-size: 10px; color: #b0e185; font-weight: 870; letter-spacing: .13em; }
+.workspace-heading h1 { font-size: clamp(28px,4vw,39px); font-weight: 900; letter-spacing: -.045em; line-height: 1.16; margin: 8px 0; }
+.workspace-heading p { color: #a5b5c9; line-height: 1.6; font-size: 13px; max-width: 720px; margin: 6px 0 0; }
+.workspace-back { white-space: nowrap; background: #192a3a; color: #d6efc7; border: 1px solid #3c5345; font-size: 12px; padding: 10px 14px; }
+.settings-view .settings-body { max-width: 780px; }
+.settings-view .control { margin-bottom: 20px; }
+.intelligence-grid { display: block; }
+.intelligence-grid > .intelligence { min-height: 0; }
+.journal-view .tableCard { margin-top: 5px; }
+.guide-steps { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin-bottom: 20px; }
+.guide-step { display: flex; gap: 18px; padding: 24px; border-radius: 15px; border: 1px solid #2f4254; background: #131f2c; }
+.guide-number { display: grid; place-items: center; flex: 0 0 36px; height: 36px; border-radius: 9px; background: #273d2b; color: #c9f4a6; font-weight: 900; font-size: 12px; }
+.guide-step h3 { margin: 2px 0 10px; font-size: 17px; line-height: 1.35; }
+.guide-step p,.guide-warning p { font-size: 13px; color: #a9bacd; line-height: 1.75; margin: 0; }
+.guide-warning { border: 1px solid #695434; background: #31291e; border-radius: 14px; padding: 23px; margin-bottom: 20px; }
+.guide-warning strong { color: #ffdcaa; font-size: 14px; display: block; margin-bottom: 9px; }
+.guide-warning p { color: #dfc8a8; }
+.guide-open-control { min-height: 44px; }
+@media (max-width: 740px) {
+  .top-v3 .header-nav button { font-size: 11px; padding: 10px 9px; }
+  .top-v3 .hamburger-trigger { min-height: 32px; padding: 7px 10px; font-size: 11px; }
+  .top-v3 .header-account .header-signout { padding: 7px 9px; }
+  .menu-drawer-head { padding: 23px 18px; }
+  .menu-link { padding: 14px 10px; gap: 10px; }
+  .menu-link .menu-icon { width: 36px; height: 36px; min-width: 36px; }
+  .workspace-heading { flex-direction: column; align-items: flex-start; margin-top: 4px; }
+  .workspace-heading h1 { font-size: 30px; }
+  .workspace-back { align-self: flex-start; }
+  .guide-steps { grid-template-columns: minmax(0,1fr); }
+  .guide-step { padding: 19px; }
+}
+@media (max-width: 390px) {
+  .top-v3 .header-nav button { font-size: 10px; padding: 9px 6px; }
+  .top-v3 .hamburger-trigger { gap: 6px; margin-left: 2px; }
+  .top-v3 .header-account .header-signout { font-size: 9px; padding: 6px; }
+  .hamburger-lines { width: 14px; height: 12px; }
+}
