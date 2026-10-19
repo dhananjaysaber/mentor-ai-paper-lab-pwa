@@ -39,7 +39,7 @@ export function installAiBridge() {
   window.fetch = (input, init = {}) => {
     const path = typeof input === 'string' ? input : (input?.url || '');
     const isFyers = path.startsWith('/api/fyers/');
-    const isClaude = path.startsWith('/.netlify/functions/ai-analyze');
+    const isClaude = path.startsWith('/.netlify/functions/ai-analyze') || path.startsWith('/.netlify/functions/ai-session');
     if (!isFyers && !isClaude) return originalFetch(input, init);
     const headers = new Headers(init.headers || (typeof input !== 'string' ? input?.headers : undefined) || {});
     if (isFyers && getSession()) headers.set('Authorization', 'Bearer ' + getSession());
