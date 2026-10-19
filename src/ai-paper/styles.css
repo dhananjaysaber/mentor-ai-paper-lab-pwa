@@ -243,3 +243,25 @@ html { scroll-behavior: smooth; scroll-padding-top: 160px; }
   .top-v3 .header-account .header-signout { font-size: 9px; padding: 6px; }
   .hamburger-lines { width: 14px; height: 12px; }
 }
+
+
+/* Installable Mentor AI PWA */
+.install-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-color:#83b16f;color:#d5f8ba;background:#25402b}
+.install-hero-btn:hover{border-color:#bbef9b;background:#31523a}
+.install-hero-btn span{font-size:19px;line-height:1}
+.menu-link.menu-install{margin-top:15px;border-color:#507b49;background:#1c3424}
+.menu-link.menu-install:hover{background:#294631}
+.menu-link.menu-install:disabled{opacity:.65;cursor:default}
+.install-backdrop{position:fixed;z-index:120;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,9,16,.86);backdrop-filter:blur(4px)}
+.install-dialog{width:min(490px,96vw);max-height:calc(100dvh - 36px);overflow-y:auto;border:1px solid #4b6452;border-radius:20px;box-shadow:0 24px 68px #0009;background:linear-gradient(140deg,#1b3024,#111c29);padding:23px}
+.install-dialog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:24px}
+.install-dialog-brand{display:flex;align-items:center;gap:14px;min-width:0}
+.install-dialog-brand img{width:59px;height:59px;border-radius:15px;flex-shrink:0}
+.install-dialog-brand strong{display:block;font-size:17px;letter-spacing:-.025em}
+.install-dialog-brand small{display:block;color:#9cb4a7;margin-top:7px;line-height:1.45}
+.install-close{border-radius:9px;padding:8px 11px;background:#1c2c35;color:#b6c9d5}
+.install-steps{padding:8px 2px;color:#bed0c6}
+.install-steps p{margin:0 0 15px;font-size:13px;line-height:1.65}
+.install-steps b,.install-steps strong{color:#e2f6db}
+.install-confirm{width:100%;min-height:42px;margin-top:8px}
+@media(max-width:700px){.install-dialog{padding:19px}.install-dialog-brand img{width:53px;height:53px}.install-dialog-brand strong{font-size:15px}}
