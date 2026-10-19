@@ -6,6 +6,13 @@ import { installAiBridge, getAiFyersLoginUrl } from './bridge.js';
 import { loadAiSession, saveAiSession, clearAiSession, remainingAiSession } from './auth.js';
 installAiBridge();
 
+if ('serviceWorker' in navigator) {
+ window.addEventListener('load', () => {
+   navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`, { scope: import.meta.env.BASE_URL })
+     .catch(error=>console.warn('PWA service worker registration failed:',error));
+ }, {once:true});
+}
+
 const STORAGE='mentor-ai-paper-lab-v1';
 const starting={positions:[],closed:[],decisions:[],settings:{capital:50000,riskPct:1},auto:false};
 const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
@@ -48,6 +55,40 @@ function App(){
  const [now,setNow]=useState(Date.now());
  const [menuOpen,setMenuOpen]=useState(false);
  const [activePage,setActivePage]=useState('overview');
+ const [installEvent,setInstallEvent]=useState(null);
+ const [installInstructions,setInstallInstructions]=useState(false);
+ const [installed,setInstalled]=useState(()=>{
+   return Boolean(window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone);
+ });
+ const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent);
+ const requestInstall=async()=>{
+   setMenuOpen(false);
+   if(installed)return;
+   if(installEvent){
+     try{
+       await installEvent.prompt();
+       const result=await installEvent.userChoice;
+       if(result?.outcome==='accepted')setInstalled(true);
+       setInstallEvent(null);
+     }catch{setInstallInstructions(true)}
+   }else{setInstallInstructions(true)}
+ };
+ useEffect(()=>{
+   const onInstall=e=>{e.preventDefault();setInstallEvent(e)};
+   const onInstalled=()=>{setInstalled(true);setInstallInstructions(false);setInstallEvent(null)};
+   window.addEventListener('beforeinstallprompt',onInstall);
+   window.addEventListener('appinstalled',onInstalled);
+   return()=>{
+     window.removeEventListener('beforeinstallprompt',onInstall);
+     window.removeEventListener('appinstalled',onInstalled);
+   };
+ },[]);
+ useEffect(()=>{
+   if(!installInstructions)return;
+   const onKey=e=>{if(e.key==='Escape')setInstallInstructions(false)};
+   document.addEventListener('keydown',onKey);
+   return()=>document.removeEventListener('keydown',onKey);
+ },[installInstructions]);
  const selectPage=(page)=>{
    setActivePage(page);
    setMenuOpen(false);
@@ -259,16 +300,27 @@ function App(){
       <button type="button" className={'menu-link '+(activePage==='guide'?'active':'')} onClick={()=>selectPage('guide')}>
        <span className="menu-icon" aria-hidden="true">?</span><span><strong>How the AI Works</strong><small>Paper execution process and limitations</small></span><span className="menu-arrow" aria-hidden="true">›</span>
       </button>
+      <button type="button" className="menu-link menu-install" disabled={installed} onClick={requestInstall}>
+       <span className="menu-icon" aria-hidden="true">⌂</span><span><strong>{installed?'Installed on this device':'Install / Add to Home Screen'}</strong><small>Launch Mentor AI like a dedicated mobile app</small></span><span className="menu-arrow" aria-hidden="true">›</span>
+      </button>
      </div>
      <div className="menu-drawer-foot"><span className="menu-foot-dot"></span> Independent research · No real orders</div>
     </aside>
   </>}
+  {installInstructions && <div className="install-backdrop" role="presentation" onClick={()=>setInstallInstructions(false)}>
+    <section className="install-dialog" role="dialog" aria-modal="true" aria-labelledby="install-dialog-title" onClick={e=>e.stopPropagation()}>
+     <div className="install-dialog-head"><div className="install-dialog-brand"><img src={`${import.meta.env.BASE_URL}icons/mentor-ai-192.png`} alt="Mentor AI app icon"/><div><strong id="install-dialog-title">Add Mentor AI to Home Screen</strong><small>Install the PWA and open it like a native app</small></div></div><button className="install-close" type="button" onClick={()=>setInstallInstructions(false)} aria-label="Close installation instructions">✕</button></div>
+     {isIOS ? <div className="install-steps"><p>On your iPhone or iPad, use <strong>Safari</strong> for the easiest installation.</p><p><b>1.</b> Tap the <strong>Share</strong> icon (square with an upward arrow) in Safari.</p><p><b>2.</b> Scroll down and select <strong>Add to Home Screen</strong>.</p><p><b>3.</b> Name it <strong>Mentor AI</strong> and tap <strong>Add</strong>.</p></div>
+      : <div className="install-steps"><p>In Chrome or Edge, open the browser menu and select <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p><p>If no installation option appears, use a modern browser over HTTPS and reopen this page.</p></div>}
+     <button type="button" className="accent install-confirm" onClick={()=>setInstallInstructions(false)}>Got it</button>
+    </section>
+   </div>}
   <main id="main-content">
   {activePage==='overview' && <div className="workspace-view overview-view">
   <section className="hero" id="overview">
    <div><p className="overline">SEPARATE RESEARCH ENVIRONMENT</p><h1>Autonomous intelligence.<br/><span>Zero live orders.</span></h1>
    <p>Claude reviews verified market snapshots, decides whether to enter, and manages simulated exits and trailing stops. Multiple independent positions can coexist.</p>
-   <div className="heroActions"><button onClick={()=>location.assign(getAiFyersLoginUrl())} className="accent">{broker?.authenticated?'Reconnect FYERS':'Connect FYERS'}</button><button className="secondary" onClick={()=>void refreshStatus()}>Check connection</button></div>
+   <div className="heroActions"><button onClick={()=>location.assign(getAiFyersLoginUrl())} className="accent">{broker?.authenticated?'Reconnect FYERS':'Connect FYERS'}</button><button className="secondary" onClick={()=>void refreshStatus()}>Check connection</button>{!installed&&<button className="install-hero-btn" onClick={requestInstall} type="button"><span aria-hidden="true">⌂</span> Install app</button>}</div>
    </div><div className="heroCard"><small>MARKET CONTEXT</small><div className="big">{fmt(snapshot?.market?.spot)}</div><span>NIFTY 50 · {snapshot?.market?.phase||'Waiting'}</span><hr/><div className="split"><span>Session</span><strong>{snapshot?.market?.sessionDate||'—'}</strong></div><div className="split"><span>Last refresh</span><strong>{stamp(snapshot?.generatedAt)}</strong></div><div className="split"><span>Clock (IST)</span><strong>{new Date(now).toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata'})}</strong></div></div>
   </section>
   <section className="metrics">
