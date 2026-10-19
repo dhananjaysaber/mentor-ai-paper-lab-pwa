@@ -265,3 +265,34 @@ html { scroll-behavior: smooth; scroll-padding-top: 160px; }
 .install-steps b,.install-steps strong{color:#e2f6db}
 .install-confirm{width:100%;min-height:42px;margin-top:8px}
 @media(max-width:700px){.install-dialog{padding:19px}.install-dialog-brand img{width:53px;height:53px}.install-dialog-brand strong{font-size:15px}}
+
+
+/* iOS Home Screen safe-area fix — prevent the clock, Dynamic Island and notch
+   from overlapping the MAI logo, navigation, drawer and modal content.
+   Applies only in the installed standalone experience, not ordinary Safari. */
+html { background-color: #080c15; }
+body { background-color: #080c15; }
+@media (display-mode: standalone) {
+  .top-v3 {
+    padding-top: max(12px, env(safe-area-inset-top, 0px));
+  }
+  .menu-drawer {
+    padding-top: max(12px, env(safe-area-inset-top, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .install-backdrop {
+    padding-top: max(18px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(18px, env(safe-area-inset-bottom, 0px));
+  }
+  main#main-content {
+    padding-bottom: max(22px, env(safe-area-inset-bottom, 0px));
+  }
+}
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) and (max-width: 940px) {
+    /* Older Home Screen builds may incorrectly report 0 for env safe area.
+       Reserve adequate room under the iOS system clock in that case. */
+    .top-v3 { padding-top: max(52px, env(safe-area-inset-top, 0px)); }
+    .menu-drawer { padding-top: max(52px, env(safe-area-inset-top, 0px)); }
+  }
+}
