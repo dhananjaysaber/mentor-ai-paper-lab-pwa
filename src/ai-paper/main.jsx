@@ -46,6 +46,24 @@ function App(){
  const [busy,setBusy]=useState(false);
  const [latest,setLatest]=useState(null);
  const [now,setNow]=useState(Date.now());
+ const [menuOpen,setMenuOpen]=useState(false);
+ const [activePage,setActivePage]=useState('overview');
+ const selectPage=(page)=>{
+   setActivePage(page);
+   setMenuOpen(false);
+   window.scrollTo({top:0,behavior:'smooth'});
+ };
+ const goToPositions=()=>{
+   setActivePage('overview');
+   setMenuOpen(false);
+   requestAnimationFrame(()=>requestAnimationFrame(()=>document.getElementById('positions')?.scrollIntoView({behavior:'smooth',block:'start'})));
+ };
+ useEffect(()=>{
+   if(!menuOpen)return;
+   const onEscape=e=>{if(e.key==='Escape')setMenuOpen(false)};
+   document.addEventListener('keydown',onEscape);
+   return()=>document.removeEventListener('keydown',onEscape);
+ },[menuOpen]);
  const running=useRef(false);
  const setSafe=change=>{
    const next=typeof change==='function'?change(bookRef.current):change;
@@ -206,21 +224,47 @@ function App(){
     </div>
    </div>
    <div className="header-sub">
-     <nav className="header-nav" aria-label="Mentor AI sections">
-      <a href="#overview">Overview</a>
-      <a href="#agent">AI Agent</a>
-      <a href="#positions">Positions</a>
-      <a href="#journal">Journal</a>
+     <nav className="header-nav" aria-label="Main dashboard sections">
+      <button type="button" className={activePage==='overview'?'selected':''} onClick={()=>selectPage('overview')}>Overview</button>
+      <button type="button" onClick={goToPositions}>Open positions</button>
      </nav>
      <div className="header-account">
       {sessionActive?<>
         <span className="header-session">{session.remembered?'Remembered until '+stamp(session.expiresAt):'Session active'}</span>
         <button className="header-signout" onClick={signOut} type="button">Sign out <span aria-hidden="true">↗</span></button>
-       </>:<a className="header-signout login" href="#agent">Unlock AI <span aria-hidden="true">↗</span></a>}
+       </>:<button className="header-signout login" type="button" onClick={()=>selectPage('control')}>Unlock AI <span aria-hidden="true">↗</span></button>}
      </div>
+     <button type="button" className="hamburger-trigger" aria-expanded={menuOpen} aria-controls="mentor-ai-navigation" aria-label="Open navigation menu" onClick={()=>setMenuOpen(v=>!v)}>
+      <span className="hamburger-lines" aria-hidden="true"><i></i><i></i><i></i></span><span>Menu</span>
+     </button>
    </div>
   </header>
-  <main>
+  {menuOpen && <>
+    <button type="button" className="menu-backdrop" aria-label="Close navigation menu" onClick={()=>setMenuOpen(false)}></button>
+    <aside id="mentor-ai-navigation" className="menu-drawer" role="dialog" aria-modal="true" aria-label="Mentor AI menu">
+     <div className="menu-drawer-head">
+      <div><span>MENTOR AI 2.0</span><strong>Explore your workspace</strong></div>
+      <button type="button" className="menu-close" onClick={()=>setMenuOpen(false)} aria-label="Close menu">✕</button>
+     </div>
+     <div className="menu-drawer-items">
+      <button type="button" className={'menu-link '+(activePage==='overview'?'active':'')} onClick={()=>selectPage('overview')}>
+       <span className="menu-icon" aria-hidden="true">▦</span><span><strong>Overview</strong><small>Market summary and live paper positions</small></span><span className="menu-arrow" aria-hidden="true">›</span>
+      </button>
+      <button type="button" className={'menu-link '+(activePage==='control'?'active':'')} onClick={()=>selectPage('control')}>
+       <span className="menu-icon" aria-hidden="true">⚙</span><span><strong>Control Centre</strong><small>AI login, risk settings and research controls</small></span><span className="menu-arrow" aria-hidden="true">›</span>
+      </button>
+      <button type="button" className={'menu-link '+(activePage==='journal'?'active':'')} onClick={()=>selectPage('journal')}>
+       <span className="menu-icon" aria-hidden="true">▤</span><span><strong>Independent Learning Journal</strong><small>All Claude decisions, trades and exports</small></span><span className="menu-arrow" aria-hidden="true">›</span>
+      </button>
+      <button type="button" className={'menu-link '+(activePage==='guide'?'active':'')} onClick={()=>selectPage('guide')}>
+       <span className="menu-icon" aria-hidden="true">?</span><span><strong>How the AI Works</strong><small>Paper execution process and limitations</small></span><span className="menu-arrow" aria-hidden="true">›</span>
+      </button>
+     </div>
+     <div className="menu-drawer-foot"><span className="menu-foot-dot"></span> Independent research · No real orders</div>
+    </aside>
+  </>}
+  <main id="main-content">
+  {activePage==='overview' && <div className="workspace-view overview-view">
   <section className="hero" id="overview">
    <div><p className="overline">SEPARATE RESEARCH ENVIRONMENT</p><h1>Autonomous intelligence.<br/><span>Zero live orders.</span></h1>
    <p>Claude reviews verified market snapshots, decides whether to enter, and manages simulated exits and trailing stops. Multiple independent positions can coexist.</p>
@@ -233,7 +277,22 @@ function App(){
    <div className="metric"><small>REALIZED P&L</small><strong className={stats.total>=0?'gain':'loss'}>₹{fmt(stats.total)}</strong><span>{stats.count} closed paper trades</span></div>
    <div className="metric"><small>WIN RATE</small><strong>{fmt(stats.winRate)}%</strong><span>Before costs / slippage</span></div>
   </section>
-  <div className="grid">
+  <div className="grid intelligence-grid">
+   <section className="card intelligence">
+    <div className="sectHead"><div><small>LAST CLAUDE DECISION</small><h2>Market intelligence</h2></div><span className="pill">{latest?.action||'AWAITING ANALYSIS'}</span></div>
+    <div className="assessment"><h3>{latest?.regime||'No analysis yet'}</h3><p>{latest?.summary||'Connect a separate FYERS application and configure Claude to review the live session.'}</p></div>
+    <div className="insight"><small>AI EXPLANATION</small><p>{latest?.reason||'Nothing has been evaluated.'}</p></div>
+    <div className="insight"><small>EVENT COVERAGE</small><p>{latest?.eventCaution||'An independent verified news/calendar feed is not connected. Claude should not guess breaking events.'}</p></div>
+    <p className="tiny">Latest: {stamp(latest?.at)} · {latest?.model||'claude-sonnet-5-5'}</p>
+   </section>
+  </div>
+  <section className="card tableCard" id="positions"><div className="sectHead"><div><small>POSITION GUARDIAN</small><h2>Open paper positions</h2></div><strong>{openCount} active</strong></div>
+    {openCount? <div className="scroll"><table><thead><tr><th>Contract</th><th>Direction</th><th>Entry</th><th>Mark</th><th>Trail stop</th><th>Qty</th><th>P&L</th><th>Opened (IST)</th></tr></thead><tbody>{book.positions.map(p=><tr key={p.id}><td>{p.symbol}</td><td>{p.side}</td><td>₹{fmt(p.entry)}</td><td>₹{fmt(p.currentPrice)}</td><td>₹{fmt(p.optionStop)}</td><td>{p.quantity}</td><td className={estimatePnL(p)>=0?'gain':'loss'}>₹{fmt(estimatePnL(p))}</td><td>{stamp(p.openedAt)}</td></tr>)}</tbody></table></div> : <p className="empty">No open Claude positions. Existing Mentor trades are unaffected.</p>}
+  </section>
+  </div>}
+  {activePage==='control' && <div className="workspace-view settings-view">
+    <div className="workspace-heading"><div><span className="workspace-eyebrow">RESEARCH SETTINGS</span><h1>Control Centre</h1><p>Unlock Claude, set virtual risk limits and control simulated market research.</p></div><button type="button" onClick={()=>selectPage('overview')} className="workspace-back">← Overview</button></div>
+    <div className="settings-body">
    <section className="card control" id="agent">
     <div className="sectHead"><div><small>CONTROL CENTRE</small><h2>Claude trading agent</h2></div><span className="pill">MODEL · SONNET 5.5</span></div>
     {sessionActive ?
@@ -260,21 +319,26 @@ function App(){
     <div className="toolbar"><button className="accent" disabled={busy||readOnly||!isLive||!sessionActive||authChecking} onClick={()=>void analyse()}>{busy?'Analysing…':'Run Claude analysis'}</button><button disabled={!broker?.authenticated||!sessionActive||authChecking} className={book.auto?'danger':'secondary'} onClick={()=>setSafe(s=>({...s,auto:!s.auto}))}>{book.auto?'Pause auto research':'Enable auto research'}</button></div>
     <p className="notice">{status||'Market-data and Claude secrets must be configured before analysis. Auto research runs every minute only while this browser tab is open.'}</p>
    </section>
-   <section className="card intelligence">
-    <div className="sectHead"><div><small>LAST CLAUDE DECISION</small><h2>Market intelligence</h2></div><span className="pill">{latest?.action||'AWAITING ANALYSIS'}</span></div>
-    <div className="assessment"><h3>{latest?.regime||'No analysis yet'}</h3><p>{latest?.summary||'Connect a separate FYERS application and configure Claude to review the live session.'}</p></div>
-    <div className="insight"><small>AI EXPLANATION</small><p>{latest?.reason||'Nothing has been evaluated.'}</p></div>
-    <div className="insight"><small>EVENT COVERAGE</small><p>{latest?.eventCaution||'An independent verified news/calendar feed is not connected. Claude should not guess breaking events.'}</p></div>
-    <p className="tiny">Latest: {stamp(latest?.at)} · {latest?.model||'claude-sonnet-5-5'}</p>
-   </section>
-  </div>
-  <section className="card tableCard" id="positions"><div className="sectHead"><div><small>POSITION GUARDIAN</small><h2>Open paper positions</h2></div><strong>{openCount} active</strong></div>
-    {openCount? <div className="scroll"><table><thead><tr><th>Contract</th><th>Direction</th><th>Entry</th><th>Mark</th><th>Trail stop</th><th>Qty</th><th>P&L</th><th>Opened (IST)</th></tr></thead><tbody>{book.positions.map(p=><tr key={p.id}><td>{p.symbol}</td><td>{p.side}</td><td>₹{fmt(p.entry)}</td><td>₹{fmt(p.currentPrice)}</td><td>₹{fmt(p.optionStop)}</td><td>{p.quantity}</td><td className={estimatePnL(p)>=0?'gain':'loss'}>₹{fmt(estimatePnL(p))}</td><td>{stamp(p.openedAt)}</td></tr>)}</tbody></table></div> : <p className="empty">No open Claude positions. Existing Mentor trades are unaffected.</p>}
-  </section>
+    </div>
+  </div>}
+  {activePage==='journal' && <div className="workspace-view journal-view">
+    <div className="workspace-heading"><div><span className="workspace-eyebrow">CLAUDE RESEARCH RECORDS</span><h1>Independent Learning Journal</h1><p>Review every saved wait, rejection, entry, exit and trailing-stop decision. Export your paper-trading data for comparison.</p></div><button type="button" onClick={()=>selectPage('overview')} className="workspace-back">← Overview</button></div>
   <section className="card tableCard" id="journal"><div className="sectHead"><div><small>INDEPENDENT LEARNING JOURNAL</small><h2>Decisions & closed trades</h2></div><div className="toolbar"><button className="secondary" onClick={()=>download('claude-trades.csv',csv(book.closed),'text/csv')}>Export trades CSV</button><button className="secondary" onClick={()=>download('claude-paper-journal.json',JSON.stringify(book,null,2))}>Export all JSON</button></div></div>
    <div className="scroll"><table><thead><tr><th>Time (IST)</th><th>Event</th><th>Position</th><th>Reason</th></tr></thead><tbody>{book.decisions.slice(0,30).map(row=><tr key={row.id}><td>{stamp(row.at)}</td><td>{row.type}</td><td>{row.positionId?.slice(0,8)||'—'}</td><td>{row.reason||'—'}</td></tr>)}</tbody></table></div>
    {!book.decisions.length && <p className="empty">No AI decisions saved yet. WAIT outcomes, risk rejections, entries, trails, and exits will appear here.</p>}
   </section>
+  </div>}
+  {activePage==='guide' && <div className="workspace-view guide-view">
+    <div className="workspace-heading"><div><span className="workspace-eyebrow">PAPER TRADING EXPLAINED</span><h1>How Mentor AI Works</h1><p>Claude decides whether to enter or manage a simulated position; fixed risk checks and quote monitoring provide independent safeguards.</p></div><button type="button" onClick={()=>selectPage('overview')} className="workspace-back">← Overview</button></div>
+    <div className="guide-steps">
+     <article className="guide-step"><span className="guide-number">01</span><div><h3>Get a verified FYERS snapshot</h3><p>The app reads NIFTY market and option-contract data from your separately authorised non-trading FYERS application.</p></div></article>
+     <article className="guide-step"><span className="guide-number">02</span><div><h3>Ask Claude to assess the setup</h3><p>Claude interprets the available market structure, model parameters and existing paper positions. It chooses WAIT or ENTER and may request HOLD, TRAIL or EXIT for each open position.</p></div></article>
+     <article className="guide-step"><span className="guide-number">03</span><div><h3>Validate simulated risk</h3><p>Every entry requires a matching option contract, valid protective stops and sufficient virtual risk budget. Other simulated positions do not automatically block a fresh setup.</p></div></article>
+     <article className="guide-step"><span className="guide-number">04</span><div><h3>Monitor stops and log outcomes</h3><p>While your browser is open and connected, quote checks monitor paper positions. The journal logs Claude decisions, simulated fills, exits and trailing-stop changes.</p></div></article>
+    </div>
+    <div className="guide-warning"><strong>Important research limits</strong><p>No live orders are sent. There is no independently connected breaking-news or economic-calendar feed. Automatic analysis only runs while this browser tab is open and visible, and paper positions and the journal are saved on this device—not in a persistent cloud database. Quote-based fills omit transaction costs, spreads and slippage, so displayed P&amp;L does not prove real-world performance.</p></div>
+    <button className="accent guide-open-control" onClick={()=>selectPage('control')} type="button">Open Control Centre →</button>
+  </div>}
   <footer><strong>Mentor AI Paper Lab</strong> · Isolated GitHub branch · Local browser journal · Paper-only execution. Simulated fills use observed quotes and may differ from realizable prices. Not live broker trades.</footer>
   </main></div>;
 }
