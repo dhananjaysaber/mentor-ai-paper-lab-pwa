@@ -2,11 +2,11 @@
   "id": "./",
   "name": "Mentor AI Paper Lab",
   "short_name": "Mentor AI",
-  "description": "Claude autonomous NIFTY options paper research. Never places live broker orders.",
+  "description": "Claude autonomous NIFTY options paper research. Simulated trades only.",
   "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "background_color": "#080c15",
   "theme_color": "#080c15",
   "categories": [
@@ -15,10 +15,23 @@
   ],
   "icons": [
     {
+      "src": "./icons/mentor-ai-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/mentor-ai-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
       "src": "./icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
-  ]
+  ],
+  "prefer_related_applications": false
 }
