@@ -201,7 +201,7 @@ function App(){
     </div>
     <div className="header-indicators" aria-label="System status">
      <span className="status-pill paper"><i aria-hidden="true"></i> PAPER ONLY</span>
-     <span className={'status-pill '+(broker?.authenticated?'connected':'offline')}><i aria-hidden="true"></i> FYERS {broker?.authenticated?'LIVE':'OFFLINE'}</span>
+     <span className={'status-pill '+(broker?.authenticated?'connected':'offline')}><i aria-hidden="true"></i> FYERS {broker?.authenticated?'LINKED':'OFFLINE'}</span>
      <span className={'status-pill '+(sessionActive?'connected':'offline')}><i aria-hidden="true"></i> AI {sessionActive?'UNLOCKED':'LOCKED'}</span>
     </div>
    </div>
