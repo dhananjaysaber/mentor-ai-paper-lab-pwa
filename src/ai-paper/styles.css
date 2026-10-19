@@ -296,3 +296,14 @@ body { background-color: #080c15; }
     .menu-drawer { padding-top: max(52px, env(safe-area-inset-top, 0px)); }
   }
 }
+
+
+/* Transparent explanation of actual AI inputs and running limits */
+.guide-status-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border:1px solid #32463e;background:#15241d;border-radius:12px;padding:13px 16px;margin-bottom:17px}
+.guide-status-bar strong{font-size:13px;color:#dcefd8}
+.guide-status-bar small{font-size:11px;color:#afc4b4;line-height:1.5}
+.guide-capabilities{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 19px}
+.guide-capabilities>div{border:1px solid #314358;background:#131d2b;border-radius:13px;padding:21px}
+.guide-capabilities h3{color:#dcf9c4;margin:0 0 10px;font-size:16px}
+.guide-capabilities p{color:#adbed1;margin:0;font-size:13px;line-height:1.75}
+@media(max-width:740px){.guide-capabilities{grid-template-columns:1fr}.guide-capabilities>div{padding:17px}}
