@@ -1,5 +1,8 @@
+import { loadAiSession } from './auth.js';
+
 // GitHub Pages hosts only static UI. All secrets and FYERS market data remain on a
 // separate HTTPS backend. This module never embeds an API key or a broker secret.
+export const AI_SERVER_MANAGED = import.meta.env.VITE_AI_BACKEND_MODE === 'standalone';
 export const AI_BACKEND = String(import.meta.env.VITE_AI_API_BASE || (
   window.location.hostname.endsWith('github.io') ? 'https://mentor-ai-paper-lab.netlify.app' : ''
 )).replace(/\/$/, '');
@@ -30,6 +33,17 @@ export function getAiFyersLoginUrl() {
   }
   return url.toString();
 }
+export async function beginAiFyersLogin() {
+  if(!AI_SERVER_MANAGED){window.location.assign(getAiFyersLoginUrl());return}
+  const auth=loadAiSession();
+  if(!auth?.token)throw new Error('Unlock Claude AI before connecting FYERS.');
+  const response=await fetch('/api/fyers/authorize',{method:'POST',
+    headers:{'content-type':'application/json','authorization':'Bearer '+auth.token},
+    body:JSON.stringify({returnTo:window.location.href})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||!data.url)throw new Error(data.error||'Could not begin the secure FYERS login.');
+  window.location.assign(data.url);
+}
 export function installAiBridge() {
   if (ready) return;
   ready = true;
@@ -39,10 +53,14 @@ export function installAiBridge() {
   window.fetch = (input, init = {}) => {
     const path = typeof input === 'string' ? input : (input?.url || '');
     const isFyers = path.startsWith('/api/fyers/');
+    const isWorker = path.startsWith('/api/ai-paper/');
     const isClaude = path.startsWith('/.netlify/functions/ai-analyze') || path.startsWith('/.netlify/functions/ai-session');
-    if (!isFyers && !isClaude) return originalFetch(input, init);
+    if (!isFyers && !isClaude && !isWorker) return originalFetch(input, init);
     const headers = new Headers(init.headers || (typeof input !== 'string' ? input?.headers : undefined) || {});
-    if (isFyers && getSession()) headers.set('Authorization', 'Bearer ' + getSession());
+    if (AI_SERVER_MANAGED && (isFyers || isWorker)) {
+      const session=loadAiSession();
+      if(session?.token) headers.set('Authorization','Bearer '+session.token);
+    } else if (isFyers && getSession()) headers.set('Authorization', 'Bearer ' + getSession());
     return originalFetch(AI_BACKEND + path, {...init, headers, mode: 'cors', credentials: 'omit'});
   };
 }
